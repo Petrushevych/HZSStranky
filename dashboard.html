@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pro Hasiče</title>
+  <link rel="icon" href="media/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="top-panel">
+  <nav class="nav-center">
+    <ul class="hlavni-menu">
+      <li><a href="#vyjezd" class="active">Výjezdový záznam</a></li>
+      <li><a href="#smena">Zapsání směny</a></li>
+      <li><a href="#hlaseni">Hlášení o nehodě</a></li>
+      <li><a href="#moje-dokumenty">Moje dokumenty</a></li>
+    </ul>
+    <ul id="velitelske-menu" class="hlavni-menu" style="display:none;">
+      <li><a href="#statistiky">Statistiky</a></li>
+      <li><a href="#sprava">Správa členů</a></li>
+      <section id="vsechny-dokumenty" style="display:none;">
+  <h3>Všechny dokumenty</h3>
+
+  <div class="sub-nav">
+    <button onclick="zobrazPodsekci('vyjezdy')">Výjezdové záznamy</button>
+    <button onclick="zobrazPodsekci('smeny')">Zapsané směny</button>
+    <button onclick="zobrazPodsekci('hlaseni')">Hlášení o nehodách</button>
+  </div>
+
+  <div id="vsechny-vyjezdy" class="podsekce"></div>
+  <div id="vsechny-smeny" class="podsekce" style="display:none;">
+    <p>Modul pro směny připravujeme...</p>
+  </div>
+  <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
+    <p>Modul pro hlášení připravujeme...</p>
+  </div>
+</section>
+      <li><button id="logout-btn">Odhlásit se</button></li>
+    </ul>
+  </nav>
+</header>
+
+  <div class="wrapper">
+    <div class="box">
+      <h2>Vítej, <span id="user-email">...</span></h2>
+
+      <section id="vyjezd">
+        <h3>Výjezdový záznam</h3>
+        <form id="vyjezd-form">
+          <label>Jednotky na místě:</label>
+          <div class="dropdown-checkbox">
+            <button type="button" id="toggle-jednotky">Vyber jednotky</button>
+            <div id="jednotky-box" class="dropdown-content">
+              <label><input type="checkbox" value="HZS"> HZS</label>
+              <label><input type="checkbox" value="ZZS"> ZZS</label>
+              <label><input type="checkbox" value="PČR"> PČR</label>
+              <label><input type="checkbox" value="MP"> MP</label>
+              <label><input type="checkbox" value="JSDH"> JSDH</label>
+            </div>
+          </div>
+
+          <label>Datum výjezdu:</label>
+          <input type="text" placeholder="dd.mm.rrrr" />
+
+          <label>Čas výjezdu:</label>
+          <input type="text" placeholder="hh:mm" />
+
+          <label>Lokalizace události:</label>
+          <input type="text" placeholder="Zadej místo" />
+
+          <label>Typ události:</label>
+          <select id="typ">
+            <option>Požár</option>
+            <option>Technická pomoc</option>
+            <option>Dopravní nehoda</option>
+            <option>Únik nebezpečných látek</option>
+            <option>Jiná událost</option>
+          </select>
+
+          <label>Počet zraněných:</label>
+          <input type="number" min="0" />
+
+          <label>Vyjetá vozidla:</label>
+          <textarea rows="2" placeholder="Např. Výjezd 1, AZ 42T"></textarea>
+
+          <label>Použité vybavení:</label>
+          <textarea rows="2" placeholder="Např. hydraulika, dýchací technika"></textarea>
+
+          <label>Stupeň požárního poplachu:</label>
+          <select id="stupen">
+            <option>I. stupeň</option>
+            <option>II. stupeň</option>
+            <option>III. stupeň</option>
+          </select>
+
+          <label>Stručný popis:</label>
+          <textarea rows="4" placeholder="Popiš událost..."></textarea>
+
+          <button type="submit">Uložit záznam</button>
+        </form>
+      </section>
+
+      <section id="smena" style="display:none;"><h3>Zapsání směny</h3><p>Sem přijde formulář pro evidenci směn.</p></section>
+      <section id="hlaseni" style="display:none;"><h3>Hlášení o nehodě</h3><p>Sem přijde formulář pro hlášení o nehodě.</p></section>
+      <section id="statistiky" style="display:none;"><h3>Statistiky</h3><p>Sem přijdou velitelské statistiky.</p></section>
+      <section id="sprava" style="display:none;"><h3>Správa členů</h3><p>Sem přijde správa uživatelů a oprávnění.</p></section>
+
+      <section id="moje-dokumenty" style="display:none;">
+        <h3>Moje dokumenty</h3>
+        <div id="moje-vystupy"><p>Načítám tvoje záznamy...</p></div>
+      </section>
+
+      <section id="vsechny-dokumenty" style="display:none;">
+        <h3>Všechny dokumenty</h3>
+        <div id="vsechny-vystupy"><p>Načítám všechny záznamy...</p></div>
+      </section>
+    </div>
+  </div>
+
+  <footer><p>© 2025 Hasičský záchranný sbor, FivePD Czech Community - Všechna práva vyhrazena</p></footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    document.getElementById("toggle-jednotky").addEventListener("click", () => {
+      document.querySelector(".dropdown-checkbox").classList.toggle("show");
+    });
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxIReHtxYMMQS45F6LsuuUNmD9OFM52xw",
+      authDomain: "strankyhzs.firebaseapp.com",
+      projectId: "strankyhzs",
+      storageBucket: "strankyhzs.appspot.com",
+      messagingSenderId: "4241320711",
+      appId: "1:4241320711:web:ec4d01e8f313d6a02333a2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const velitele = [
+      "kubajzzzmusic@gmail.com",
+      "velitel1@hzs.cz",
+      "velitel2@hzs.cz"
+    ];
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        document.getElementById("user-email").textContent = user.email;
+        if (velitele.includes(user.email)) {
+          document.getElementById("velitelske-menu").style.display = "flex";
+          loadAllDocuments();
+        }
+        loadUserDocuments(user.email);
+      } else {
+        window.location.href = "prohasice.html";
+      }
+    });
+
+    function zobrazPodsekci(typ) {
+  document.querySelectorAll(".podsekce").forEach(div => div.style.display = "none");
+  document.getElementById("vsechny-" + typ).style.display = "block";
+}
+
+    async function loadUserDocuments(email) {
+      const q = query(collection(db, "vyjezdy"), where("autor", "==", email));
+      const querySnapshot = await getDocs(q);
+      const container = document.getElementById("moje-vystupy");
+      container.innerHTML = "";
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const id = doc.id;
+        const blok = document.createElement("div");
+        blok.className = "dokument";
+        blok.innerHTML = `
+          <strong>${data.typ}</strong> – ${data.datum} ${data.cas}<br/>
+          ${data.lokalizace} | ${data.popis}<br/>
+          <button onclick="zobrazDetail('${id}')">Zobrazit detail</button>
+        `;
+        container.appendChild(blok);
+      });
+    }
+
+      async function loadAllDocuments() {
+        const querySnapshot = await getDocs(collection(db, "vyjezdy"));
+        const container = document.getElementById("vsechny-vyjezdy");
+        container.innerHTML = "";
+
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          const id = doc.id;
+          container.innerHTML += `<div class="dokument">
+            <strong>${data.typ}</strong> – ${data.datum} ${data.cas}<br/>
+            ${data.lokalizace} | ${data.popis} <br/>
+            <em>Autor: ${data.autor}</em><br/>
+            <button onclick="zobrazDetail('${id}')">Zobrazit detail</button>
+          </div><hr/>`;
+        });
+      }
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "prohasice.html");
+    });
+
+    document.getElementById("vyjezd-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return alert("Nepřihlášený uživatel");
+
+        const data = {
+    autor: user.email,
+    datum: document.querySelector('input[placeholder="dd.mm.rrrr"]').value,
+    cas: document.querySelector('input[placeholder="hh:mm"]').value,
+    lokalizace: document.querySelector('input[placeholder="Zadej místo"]').value,
+    typ: document.getElementById("typ").value,
+    zraneni: parseInt(document.querySelector('input[type="number"]').value),
+    vozidla: document.querySelectorAll('textarea')[0].value,
+    vybaveni: document.querySelectorAll('textarea')[1].value,
+    stupen: document.getElementById("stupen").value,
+    popis: document.querySelectorAll('textarea')[2].value,
+    jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
+  };
+
+  try {
+    await addDoc(collection(db, "vyjezdy"), data);
+    alert("Záznam uložen!");
+    document.getElementById("vyjezd-form").reset();
+    loadUserDocuments(user.email);
+    if (velitele.includes(user.email)) loadAllDocuments();
+  } catch (err) {
+    console.error("Chyba při ukládání:", err);
+    alert("Nepodařilo se uložit záznam.");
+  }
+});
+
+window.zobrazDetail = async function(id) {
+  const docRef = doc(db, "vyjezdy", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const html = `
+      <div class="detail-okno">
+        <h3>${data.typ} – ${data.datum} ${data.cas}</h3>
+        <p><strong>Lokalizace:</strong> ${data.lokalizace}</p>
+        <p><strong>Jednotky:</strong> ${data.jednotky.join(", ")}</p>
+        <p><strong>Vozidla:</strong> ${data.vozidla}</p>
+        <p><strong>Vybavení:</strong> ${data.vybaveni}</p>
+        <p><strong>Stupeň poplachu:</strong> ${data.stupen}</p>
+        <p><strong>Zranění:</strong> ${data.zraneni}</p>
+        <p><strong>Popis:</strong><br/>${data.popis}</p>
+        <button onclick="zavritDetail()">Zavřít</button>
+      </div>
+    `;
+    const overlay = document.createElement("div");
+    overlay.id = "overlay";
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay);
+  }
+};
+
+window.zavritDetail = function() {
+  const overlay = document.getElementById("overlay");
+  if (overlay) overlay.remove();
+};
+
+// Přepínání sekcí podle kliknutí
+document.querySelectorAll(".top-panel a").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    document.querySelectorAll(".top-panel a").forEach(a => a.classList.remove("active"));
+    link.classList.add("active");
+
+    const target = link.getAttribute("href").substring(1);
+    document.querySelectorAll("section").forEach(sec => {
+      sec.style.display = sec.id === target ? "block" : "none";
+    });
+
+    // Aktualizace hash v URL
+    window.location.hash = target;
+  });
+});
+
+// Aktivace sekce podle hash při načtení stránky
+window.addEventListener("load", () => {
+  const hash = window.location.hash.substring(1) || "vyjezd";
+
+  document.querySelectorAll(".top-panel a").forEach(a => {
+    a.classList.remove("active");
+    if (a.getAttribute("href").substring(1) === hash) {
+      a.classList.add("active");
+    }
+  });
+
+  document.querySelectorAll("section").forEach(sec => {
+    sec.style.display = sec.id === hash ? "block" : "none";
+  });
+});
+
+</script>
+</body>
+</html>
