@@ -8,42 +8,29 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header class="top-panel">
-  <nav class="nav-center">
-    <ul class="hlavni-menu">
-      <li><a href="#vyjezd" class="active">Výjezdový záznam</a></li>
-      <li><a href="#smena">Zapsání směny</a></li>
-      <li><a href="#hlaseni">Hlášení o nehodě</a></li>
-      <li><a href="#moje-dokumenty">Moje dokumenty</a></li>
-    </ul>
-    <ul id="velitelske-menu" class="hlavni-menu" style="display:none;">
-      <li><a href="#statistiky">Statistiky</a></li>
-      <li><a href="#sprava">Správa členů</a></li>
-      <li><a href="#vsechny-dokumenty">Všechny dokumenty</a></li>
-      <li><button id="logout-btn">Odhlásit se</button></li>
-    </ul>
-  </nav>
-</header>
-
-<!-- Sekce musí být mimo <ul> -->
-<section id="vsechny-dokumenty" style="display:none;">
-  <h3>Všechny dokumenty</h3>
-
-  <div class="sub-nav">
-    <button onclick="zobrazPodsekci('vyjezdy')">Výjezdové záznamy</button>
-    <button onclick="zobrazPodsekci('smeny')">Zapsané směny</button>
-    <button onclick="zobrazPodsekci('hlaseni')">Hlášení o nehodách</button>
+  <header class="top-panel">
+    <nav class="nav-center">
+      <ul class="hlavni-menu">
+        <li><a href="#vyjezd" class="active">Výjezdový záznam</a></li>
+        <li><a href="#smena">Zapsání směny</a></li>
+        <li><a href="#hlaseni">Hlášení o nehodě</a></li>
+        <li><a href="#moje-dokumenty">Moje dokumenty</a></li>
+      </ul>
+      <ul id="velitelske-menu" class="hlavni-menu" style="display:none;">
+        <li><a href="#statistiky">Statistiky</a></li>
+        <li><a href="#sprava">Správa členů</a></li>
+        <li><a href="#vsechny-dokumenty">Všechny dokumenty</a></li>
+        <li><button id="logout-btn">Odhlásit se</button></li>
+      </ul>
+    </nav>
+  </header>
+      <section id="vyjezd">...</section>
+      <section id="smena" style="display:none;">...</section>
+      <section id="hlaseni" style="display:none;">...</section>
+      <section id="moje-dokumenty" style="display:none;">...</section>
+      <section id="statistiky" style="display:none;">...</section>
+      <section id="sprava" style="display:none;">...</section>
   </div>
-
-  <div id="vsechny-vyjezdy" class="podsekce"></div>
-  <div id="vsechny-smeny" class="podsekce" style="display:none;">
-    <p>Modul pro směny připravujeme...</p>
-  </div>
-  <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
-    <p>Modul pro hlášení připravujeme...</p>
-  </div>
-</section>
-
 
   <div class="wrapper">
     <div class="box">
@@ -115,12 +102,24 @@
         <div id="moje-vystupy"><p>Načítám tvoje záznamy...</p></div>
       </section>
 
+            <!-- ✅ Tady patří „Všechny dokumenty“ -->
       <section id="vsechny-dokumenty" style="display:none;">
         <h3>Všechny dokumenty</h3>
-        <div id="vsechny-vystupy"><p>Načítám všechny záznamy...</p></div>
+
+        <div class="sub-nav">
+          <button onclick="zobrazPodsekci('vyjezdy')">Výjezdové záznamy</button>
+          <button onclick="zobrazPodsekci('smeny')">Zapsané směny</button>
+          <button onclick="zobrazPodsekci('hlaseni')">Hlášení o nehodách</button>
+        </div>
+
+        <div id="vsechny-vyjezdy" class="podsekce"></div>
+        <div id="vsechny-smeny" class="podsekce" style="display:none;">
+          <p>Modul pro směny připravujeme...</p>
+        </div>
+        <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
+          <p>Modul pro hlášení připravujeme...</p>
+        </div>
       </section>
-    </div>
-  </div>
 
   <footer><p>© 2025 Hasičský záchranný sbor, FivePD Czech Community - Všechna práva vyhrazena</p></footer>
 
@@ -164,10 +163,14 @@
       }
     });
 
-    function zobrazPodsekci(typ) {
-  document.querySelectorAll(".podsekce").forEach(div => div.style.display = "none");
-  document.getElementById("vsechny-" + typ).style.display = "block";
+function zobrazPodsekci(typ) {
+  document.querySelectorAll(".podsekce").forEach(div => {
+    div.style.display = "none";
+  });
+  const target = document.getElementById("vsechny-" + typ);
+  if (target) target.style.display = "block";
 }
+
 
     async function loadUserDocuments(email) {
       const q = query(collection(db, "vyjezdy"), where("autor", "==", email));
