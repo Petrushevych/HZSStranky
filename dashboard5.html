@@ -32,13 +32,14 @@
       <section id="sprava" style="display:none;">...</section>
   </div>
 
-  <div class="wrapper">
-    <div class="box">
-      <h2>Vítej, <span id="user-email">...</span></h2>
+<div class="wrapper">
+  <div class="box">
+    <h2>Vítej, <span id="user-email">...</span></h2>
 
-      <section id="vyjezd">
-        <h3>Výjezdový záznam</h3>
-        <form id="vyjezd-form">
+    <section id="vyjezd">
+      <h3>Výjezdový záznam</h3>
+      <form id="vyjezd-form">
+        <div class="form-group">
           <label>Jednotky na místě:</label>
           <div class="dropdown-checkbox">
             <button type="button" id="toggle-jednotky">Vyber jednotky</button>
@@ -50,47 +51,72 @@
               <label><input type="checkbox" value="JSDH"> JSDH</label>
             </div>
           </div>
+          <div id="vybrane-jednotky" class="vybrane-jednotky"></div>
+        </div>
 
+        <div class="form-group">
           <label>Datum výjezdu:</label>
           <input type="text" placeholder="dd.mm.rrrr" />
+        </div>
 
+        <div class="form-group">
           <label>Čas výjezdu:</label>
           <input type="text" placeholder="hh:mm" />
+        </div>
 
-          <label>Lokalizace události:</label>
+        <div class="form-group">
+          <label>Lokace události:</label>
           <input type="text" placeholder="Zadej místo" />
+        </div>
 
+        <div class="form-group">
           <label>Typ události:</label>
           <select id="typ">
             <option>Požár</option>
-            <option>Technická pomoc</option>
             <option>Dopravní nehoda</option>
+            <option>Technická pomoc</option>
             <option>Únik nebezpečných látek</option>
+            <option>Záchrana osob a zvířat</option>
+            <option>Planý poplach</option>
             <option>Jiná událost</option>
           </select>
+        </div>
 
+        <div class="form-group">
           <label>Počet zraněných:</label>
           <input type="number" min="0" />
+        </div>
 
+        <div class="form-group">
           <label>Vyjetá vozidla:</label>
           <textarea rows="2" placeholder="Např. Výjezd 1, AZ 42T"></textarea>
+        </div>
 
+        <div class="form-group">
           <label>Použité vybavení:</label>
           <textarea rows="2" placeholder="Např. hydraulika, dýchací technika"></textarea>
+        </div>
 
+        <div class="form-group">
           <label>Stupeň požárního poplachu:</label>
           <select id="stupen">
             <option>I. stupeň</option>
             <option>II. stupeň</option>
             <option>III. stupeň</option>
+            <option>Zvláštní stupeň</option>
           </select>
+        </div>
 
+        <div class="form-group">
           <label>Stručný popis:</label>
           <textarea rows="4" placeholder="Popiš událost..."></textarea>
+        </div>
 
-          <button type="submit">Uložit záznam</button>
-        </form>
-      </section>
+        <button type="submit">Uložit záznam</button>
+      </form>
+    </section>
+  </div>
+</div>
 
       <section id="smena" style="display:none;"><h3>Zapsání směny</h3><p>Sem přijde formulář pro evidenci směn.</p></section>
       <section id="hlaseni" style="display:none;"><h3>Hlášení o nehodě</h3><p>Sem přijde formulář pro hlášení o nehodě.</p></section>
@@ -106,19 +132,19 @@
       <section id="vsechny-dokumenty" style="display:none;">
         <h3>Všechny dokumenty</h3>
 
-        <div class="sub-nav">
+      <div class="sub-nav">
         <button onclick="zobrazPodsekci('vyjezdy')">Výjezdové záznamy</button>
         <button onclick="zobrazPodsekci('smeny')">Zapsané směny</button>
         <button onclick="zobrazPodsekci('hlaseni')">Hlášení o nehodách</button>
-        </div>
+      </div>
 
-        <div id="vsechny-vyjezdy" class="podsekce"></div>
-        <div id="vsechny-smeny" class="podsekce" style="display:none;">
-          <p>Modul pro směny připravujeme...</p>
-        </div>
-        <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
-          <p>Modul pro hlášení připravujeme...</p>
-        </div>
+      <div id="vsechny-vyjezdy" class="podsekce"></div>
+      <div id="vsechny-smeny" class="podsekce" style="display:none;">
+        <p>Modul pro směny připravujeme...</p>
+      </div>
+      <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
+        <p>Modul pro hlášení připravujeme...</p>
+      </div>
       </section>
 
   <footer><p>© 2025 Hasičský záchranný sbor, FivePD Czech Community - Všechna práva vyhrazena</p></footer>
@@ -127,9 +153,23 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-    document.getElementById("toggle-jednotky").addEventListener("click", () => {
-      document.querySelector(".dropdown-checkbox").classList.toggle("show");
-    });
+document.getElementById("toggle-jednotky").addEventListener("click", () => {
+  document.querySelector(".dropdown-checkbox").classList.toggle("show");
+});
+
+// ✅ Tohle musí být mimo ten click listener
+const jednotkyBox = document.getElementById("jednotky-box");
+const jednotkyDisplay = document.getElementById("vybrane-jednotky");
+
+jednotkyBox.addEventListener("change", () => {
+  const vybrane = Array.from(jednotkyBox.querySelectorAll("input[type='checkbox']:checked"))
+                        .map(cb => cb.value);
+  jednotkyDisplay.textContent = vybrane.length
+    ? "Vybrané jednotky: " + vybrane.join(", ")
+    : "Žádné jednotky zatím nevybrány.";
+});
+
+
 
     const firebaseConfig = {
       apiKey: "AIzaSyDxIReHtxYMMQS45F6LsuuUNmD9OFM52xw",
@@ -163,14 +203,13 @@
       }
     });
 
-function zobrazPodsekci(typ) {
+window.zobrazPodsekci = function(typ) {
   document.querySelectorAll(".podsekce").forEach(div => {
     div.style.display = "none";
   });
   const target = document.getElementById("vsechny-" + typ);
   if (target) target.style.display = "block";
-}
-
+};
 
     async function loadUserDocuments(email) {
       const q = query(collection(db, "vyjezdy"), where("autor", "==", email));
