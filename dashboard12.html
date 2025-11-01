@@ -117,7 +117,7 @@
         <button type="submit">Uložit záznam</button>
       </form>
     </section>
-<section id="smena" style="display:none;">
+    <div id="overlay" style="display:none;"></div>
   <h3>Zapsání směny</h3>
   <form id="smena-form">
     <div class="form-group">
@@ -350,7 +350,7 @@ async function loadUserShifts(email) {
       Náplň: ${data.napln}<br/>
       <button>Zobrazit detail</button>
     `;
-    box.querySelector("button").addEventListener("click", () => zobrazDetailSmeny(data));
+    box.querySelector("button").addEventListener("click", () => window.zobrazDetailSmeny(data));
     container.appendChild(box);
   });
 }
@@ -370,7 +370,7 @@ async function loadAllShifts() {
       Náplň: ${data.napln}<br/>
       <button>Zobrazit detail</button>
     `;
-    box.querySelector("button").addEventListener("click", () => zobrazDetailSmeny(data));
+    box.querySelector("button").addEventListener("click", () => window.zobrazDetailSmeny(data));
     container.appendChild(box);
   });
 }
@@ -494,6 +494,11 @@ window.zavritDetail = function() {
 
 function zobrazDetailSmeny(data) {
   const overlay = document.getElementById("overlay");
+  if (!overlay) {
+    console.error("Overlay prvek nebyl nalezen.");
+    return;
+  }
+
   overlay.innerHTML = `
     <div class="detail-okno">
       <h3>Směna – ${data.datum} ${data.cas}</h3>
@@ -514,7 +519,7 @@ function zobrazDetailSmeny(data) {
   overlay.style.display = "flex";
 }
 
-window.zobrazDetail = zobrazDetailSmeny;
+window.zobrazDetailSmeny = zobrazDetailSmeny;
 
 // Přepínání sekcí podle kliknutí
 document.querySelectorAll(".top-panel a").forEach(link => {
