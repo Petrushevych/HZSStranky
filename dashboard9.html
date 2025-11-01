@@ -147,7 +147,7 @@
     <div class="form-group">
       <label>Vozidlo:</label>
       <select>
-        <option>PSA 100 - KOPIS</option>
+        <option>PSA 100, KOPIS</option>
         <option>PSA 101, CAS 20 Scania XT</option>
         <option>PSA 102, CAS 30 Scania XT</option>
         <option>PSA 103, AZ-30 Scania XT</option>
@@ -303,6 +303,13 @@ onAuthStateChanged(auth, async user => {
   } else {
     window.location.href = "prohasice.html";
   }
+
+  loadUserShifts(user.email);
+if (velitele.includes(user.email)) {
+  document.getElementById("velitelske-menu").style.display = "flex";
+  loadAllShifts();
+}
+
 });
 
 window.zobrazPodsekci = function(typ) {
@@ -332,6 +339,39 @@ window.zobrazPodsekci = function(typ) {
         container.appendChild(blok);
       });
     }
+
+    async function loadUserShifts(email) {
+  const q = query(collection(db, "smeny"), where("autor", "==", email));
+  const querySnapshot = await getDocs(q);
+  const container = document.getElementById("vsechny-smeny");
+  container.innerHTML = "";
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    container.innerHTML += `<div class="dokument">
+      <strong>${data.datum} ${data.cas}</strong><br/>
+      Vozidlo: ${data.vozidlo} | Důvod: ${data.duvod}<br/>
+      Náplň: ${data.napln}<br/>
+      <em>Autor: ${data.autor}</em>
+    </div><hr/>`;
+  });
+}
+
+async function loadAllShifts() {
+  const querySnapshot = await getDocs(collection(db, "smeny"));
+  const container = document.getElementById("vsechny-smeny");
+  container.innerHTML = "";
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    container.innerHTML += `<div class="dokument">
+      <strong>${data.datum} ${data.cas}</strong><br/>
+      Vozidlo: ${data.vozidlo} | Důvod: ${data.duvod}<br/>
+      Náplň: ${data.napln}<br/>
+      <em>Autor: ${data.autor}</em>
+    </div><hr/>`;
+  });
+}
 
       async function loadAllDocuments() {
         const querySnapshot = await getDocs(collection(db, "vyjezdy"));
@@ -382,6 +422,39 @@ window.zobrazPodsekci = function(typ) {
   } catch (err) {
     console.error("Chyba při ukládání:", err);
     alert("Nepodařilo se uložit záznam.");
+  }
+});
+
+document.getElementById("smena-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) return alert("Nepřihlášený uživatel");
+
+  const data = {
+    autor: user.email,
+    datum: document.querySelector('#smena-form input[type="date"]').value,
+    cas: document.querySelector('#smena-form input[placeholder="hh:mm"]').value,
+    rozdeleni: document.querySelectorAll('#smena-form textarea')[0].value,
+    napln: document.querySelectorAll('#smena-form textarea')[1].value,
+    vozidlo: document.querySelector('#smena-form select:nth-of-type(1)').value,
+    duvod: document.querySelector('#smena-form select:nth-of-type(2)').value,
+    palivo: document.querySelector('#smena-form input[type="number"]').value,
+    voda: document.querySelector('#smena-form input[placeholder="Např. 3/5"]').value,
+    svetla: document.querySelector('#smena-form select:nth-of-type(3)').value,
+    ciste: document.querySelector('#smena-form select:nth-of-type(4)').value,
+    technika: document.querySelector('#smena-form select:nth-of-type(5)').value,
+    poznamka: document.querySelectorAll('#smena-form textarea')[2].value
+  };
+
+  try {
+    await addDoc(collection(db, "smeny"), data);
+    alert("Směna uložena!");
+    document.getElementById("smena-form").reset();
+    loadUserShifts(user.email);
+    if (velitele.includes(user.email)) loadAllShifts();
+  } catch (err) {
+    console.error("Chyba při ukládání směny:", err);
+    alert("Nepodařilo se uložit směnu.");
   }
 });
 
