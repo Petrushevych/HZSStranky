@@ -15,22 +15,21 @@
         <li><a href="#smena">Zapsání směny</a></li>
         <li><a href="#hlaseni">Hlášení o nehodě</a></li>
         <li><a href="#moje-dokumenty">Moje dokumenty</a></li>
-        <li><button id="logout-btn">Odhlásit se</button></li>
       </ul>
       <ul id="velitelske-menu" class="hlavni-menu" style="display:none;">
         <li><a href="#statistiky">Statistiky</a></li>
         <li><a href="#sprava">Správa členů</a></li>
         <li><a href="#vsechny-dokumenty">Všechny dokumenty</a></li>
-        <li><button id="logout-btn">Odhlásit se</button></li>
       </ul>
+      <li><button id="logout-btn">Odhlásit se</button></li>
     </nav>
   </header>
-      <section id="vyjezd">...</section>
-      <section id="smena" style="display:none;">...</section>
-      <section id="hlaseni" style="display:none;">...</section>
-      <section id="moje-dokumenty" style="display:none;">...</section>
-      <section id="statistiky" style="display:none;">...</section>
-      <section id="sprava" style="display:none;">...</section>
+      <section id="vyjezd"></section>
+      <section id="smena" style="display:none;"></section>
+      <section id="hlaseni" style="display:none;"></section>
+      <section id="moje-dokumenty" style="display:none;"></section>
+      <section id="statistiky" style="display:none;"></section>
+      <section id="sprava" style="display:none;"></section>
   </div>
 
 <div class="wrapper">
@@ -41,9 +40,9 @@
       <h3>Výjezdový záznam</h3>
       <form id="vyjezd-form">
         <div class="form-group">
-          <label>Jednotky na místě:</label>
+          <label>Složky na místě:</label>
           <div class="dropdown-checkbox">
-            <button type="button" id="toggle-jednotky">Vyber jednotky</button>
+            <button type="button" id="toggle-jednotky">Vyber složky</button>
             <div id="jednotky-box" class="dropdown-content">
               <label><input type="checkbox" value="HZS"> HZS</label>
               <label><input type="checkbox" value="ZZS"> ZZS</label>
@@ -79,7 +78,9 @@
             <option>Únik nebezpečných látek</option>
             <option>Záchrana osob a zvířat</option>
             <option>Planý poplach</option>
-            <option>Jiná událost</option>
+            <option>Formálně založená událost</option>
+            <option>Ostatní mimořádná událost</option>
+            <option>Jiné, zatím neurčeno</option>
           </select>
         </div>
 
@@ -90,7 +91,7 @@
 
         <div class="form-group">
           <label>Vyjetá vozidla:</label>
-          <textarea rows="2" placeholder="Např. Výjezd 1, AZ 42T"></textarea>
+          <textarea rows="2" placeholder="Např. Výjezd 1, PSA101"></textarea>
         </div>
 
         <div class="form-group">
@@ -116,7 +117,107 @@
         <button type="submit">Uložit záznam</button>
       </form>
     </section>
-      <section id="smena" style="display:none;"><h3>Zapsání směny</h3><p>Sem přijde formulář pro evidenci směn.</p></section>
+      <section id="smena" style="display:none;">
+  <h3>Zapsání směny</h3>
+  <form id="smena-form">
+    <!-- Datum a čas -->
+    <div class="form-group">
+      <label>Datum směny:</label>
+      <input type="date" />
+    </div>
+
+    <div class="form-group">
+      <label>Čas směny:</label>
+      <input type="text" placeholder="hh:mm" />
+    </div>
+
+    <!-- Rozdělení směny -->
+    <div class="form-group">
+      <label>Rozdělení směny:</label>
+      <textarea rows="3" placeholder="Např. PSA 101 5+1, PSA 103 1+1, KOPIS, VČ..."></textarea>
+    </div>
+
+    <!-- Náplň směny -->
+    <div class="form-group">
+      <label>Náplň směny:</label>
+      <textarea rows="3" placeholder="Např. údržba techniky, výcvik, školení..."></textarea>
+    </div>
+
+    <!-- Vozidlo -->
+    <div class="form-group">
+      <label>Vozidlo:</label>
+      <select>
+        <option>PSA 100 - KOPIS</option>
+        <option>PSA 101, CAS 20 Scania XT</option>
+        <option>PSA 102, CAS 30 Scania XT</option>
+        <option>PSA 103, AZ-30 Scania XT</option>
+        <option>PSA 105, VEA Ř.D Kodiaq</option>
+        <option>PSA 106, RZA Volkswagen T6</option>
+        <option>PSA 107, CAS 20 Tatra Terra 4x4</option>
+        <option>PSA 108, TA-CH Mercedes Sprinter 4x4</option>
+        <option>PSA 109, TA Ford Ranger</option>
+        <option>PSA 112, CAS 30 Tatra Force</option>
+        <option>PSA 115, VEA Škoda Kodiaq</option>
+        <option>PSA 117, CAS 15 MAN TGM</option>
+        <option>PSA 306, MOS Mercedes Sprinter 4x4</option>
+        <!-- Zbytek si dopíšeš -->
+      </select>
+    </div>
+
+    <!-- Důvod výjezdu -->
+    <div class="form-group">
+      <label>Důvod výjezdu s technikou:</label>
+      <select>
+        <option>Kondiční jízda</option>
+        <option>Jízda na místo události</option>
+        <option>Ostatní</option>
+      </select>
+    </div>
+
+    <!-- Stav techniky -->
+    <div class="form-group">
+      <label>Palivo v nádrži (%):</label>
+      <input type="number" min="0" max="100" />
+    </div>
+
+    <div class="form-group">
+      <label>Voda v nádrži (čárky):</label>
+      <input type="text" placeholder="Např. 3/5" />
+    </div>
+
+    <div class="form-group">
+      <label>Světla, VRZ, majáky:</label>
+      <select>
+        <option>Funkční</option>
+        <option>Nefunkční</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Čisté:</label>
+      <select>
+        <option>Ano</option>
+        <option>Ne</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Agregáty, čerpadlo, žebřík, ostatní technika:</label>
+      <select>
+        <option>Funkční</option>
+        <option>Nefunkční</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Poznámka:</label>
+      <textarea rows="3" placeholder="Doplňující informace..."></textarea>
+    </div>
+
+    <button type="submit">Uložit směnu</button>
+  </form>
+</section>
+
       <section id="hlaseni" style="display:none;"><h3>Hlášení o nehodě</h3><p>Sem přijde formulář pro hlášení o nehodě.</p></section>
       <section id="statistiky" style="display:none;"><h3>Statistiky</h3><p>Sem přijdou velitelské statistiky.</p></section>
       <section id="sprava" style="display:none;"><h3>Správa členů</h3><p>Sem přijde správa uživatelů a oprávnění.</p></section>
@@ -163,8 +264,8 @@ jednotkyBox.addEventListener("change", () => {
   const vybrane = Array.from(jednotkyBox.querySelectorAll("input[type='checkbox']:checked"))
                         .map(cb => cb.value);
   jednotkyDisplay.textContent = vybrane.length
-    ? "Vybrané jednotky: " + vybrane.join(", ")
-    : "Žádné jednotky zatím nevybrány.";
+    ? "Vybrané složky: " + vybrane.join(", ")
+    : "Žádné složky zatím nevybrány.";
 });
 
 
@@ -188,18 +289,21 @@ jednotkyBox.addEventListener("change", () => {
       "velitel2@hzs.cz"
     ];
 
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        document.getElementById("user-email").textContent = user.email;
-        if (velitele.includes(user.email)) {
-          document.getElementById("velitelske-menu").style.display = "flex";
-          loadAllDocuments();
-        }
-        loadUserDocuments(user.email);
-      } else {
-        window.location.href = "prohasice.html";
-      }
-    });
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    document.getElementById("user-email").textContent = user.email;
+    document.getElementById("logout-btn").style.display = "inline-block"; // ✅ zobrazit tlačítko
+
+    if (velitele.includes(user.email)) {
+      document.getElementById("velitelske-menu").style.display = "flex";
+      loadAllDocuments();
+    }
+
+    loadUserDocuments(user.email);
+  } else {
+    window.location.href = "prohasice.html";
+  }
+});
 
 window.zobrazPodsekci = function(typ) {
   document.querySelectorAll(".podsekce").forEach(div => {
@@ -291,7 +395,7 @@ window.zobrazDetail = async function(id) {
       <div class="detail-okno">
         <h3>${data.typ} – ${data.datum} ${data.cas}</h3>
         <p><strong>Lokalizace:</strong> ${data.lokalizace}</p>
-        <p><strong>Jednotky:</strong> ${data.jednotky.join(", ")}</p>
+        <p><strong>Složky:</strong> ${data.jednotky.join(", ")}</p>
         <p><strong>Vozidla:</strong> ${data.vozidla}</p>
         <p><strong>Vybavení:</strong> ${data.vybaveni}</p>
         <p><strong>Stupeň poplachu:</strong> ${data.stupen}</p>
