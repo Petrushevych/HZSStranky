@@ -117,36 +117,32 @@
         <button type="submit">Uložit záznam</button>
       </form>
     </section>
-      <section id="smena" style="display:none;">
+<section id="smena" style="display:none;">
   <h3>Zapsání směny</h3>
   <form id="smena-form">
-    <!-- Datum a čas -->
     <div class="form-group">
-      <label>Datum směny:</label>
-      <input type="date" />
+      <label for="smena-datum">Datum směny:</label>
+      <input type="date" id="smena-datum" />
     </div>
 
     <div class="form-group">
-      <label>Čas směny:</label>
-      <input type="text" placeholder="hh:mm" />
+      <label for="smena-cas">Čas směny:</label>
+      <input type="text" id="smena-cas" placeholder="hh:mm" />
     </div>
 
-    <!-- Rozdělení směny -->
     <div class="form-group">
-      <label>Rozdělení směny:</label>
-      <textarea rows="3" placeholder="Např. PSA 101 5+1, PSA 103 1+1, KOPIS, VČ..."></textarea>
+      <label for="smena-rozdeleni">Rozdělení směny:</label>
+      <textarea id="smena-rozdeleni" rows="3" placeholder="Např. PSA 101 5+1, PSA 103 1+1, KOPIS, VČ..."></textarea>
     </div>
 
-    <!-- Náplň směny -->
     <div class="form-group">
-      <label>Náplň směny:</label>
-      <textarea rows="3" placeholder="Např. údržba techniky, výcvik, školení..."></textarea>
+      <label for="smena-napln">Náplň směny:</label>
+      <textarea id="smena-napln" rows="3" placeholder="Např. údržba techniky, výcvik, školení..."></textarea>
     </div>
 
-    <!-- Vozidlo -->
     <div class="form-group">
-      <label>Vozidlo:</label>
-      <select>
+      <label for="smena-vozidlo">Vozidlo:</label>
+      <select id="smena-vozidlo">
         <option>PSA 100, KOPIS</option>
         <option>PSA 101, CAS 20 Scania XT</option>
         <option>PSA 102, CAS 30 Scania XT</option>
@@ -160,58 +156,55 @@
         <option>PSA 115, VEA Škoda Kodiaq</option>
         <option>PSA 117, CAS 15 MAN TGM</option>
         <option>PSA 306, MOS Mercedes Sprinter 4x4</option>
-        <!-- Zbytek si dopíšeš -->
       </select>
     </div>
 
-    <!-- Důvod výjezdu -->
     <div class="form-group">
-      <label>Důvod výjezdu s technikou:</label>
-      <select>
+      <label for="smena-duvod">Důvod výjezdu s technikou:</label>
+      <select id="smena-duvod">
         <option>Kondiční jízda</option>
         <option>Jízda na místo události</option>
         <option>Ostatní</option>
       </select>
     </div>
 
-    <!-- Stav techniky -->
     <div class="form-group">
-      <label>Palivo v nádrži (%):</label>
-      <input type="number" min="0" max="100" />
+      <label for="smena-palivo">Palivo v nádrži (%):</label>
+      <input type="number" id="smena-palivo" min="0" max="100" />
     </div>
 
     <div class="form-group">
-      <label>Voda v nádrži (čárky):</label>
-      <input type="text" placeholder="Např. 3/5" />
+      <label for="smena-voda">Voda v nádrži (čárky):</label>
+      <input type="text" id="smena-voda" placeholder="Např. 3/5" />
     </div>
 
     <div class="form-group">
-      <label>Světla, VRZ, majáky:</label>
-      <select>
+      <label for="smena-svetla">Světla, VRZ, majáky:</label>
+      <select id="smena-svetla">
         <option>Funkční</option>
         <option>Nefunkční</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label>Čisté:</label>
-      <select>
+      <label for="smena-ciste">Čisté:</label>
+      <select id="smena-ciste">
         <option>Ano</option>
         <option>Ne</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label>Agregáty, čerpadlo, žebřík, ostatní technika:</label>
-      <select>
+      <label for="smena-technika">Agregáty, čerpadlo, žebřík, ostatní technika:</label>
+      <select id="smena-technika">
         <option>Funkční</option>
         <option>Nefunkční</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label>Poznámka:</label>
-      <textarea rows="3" placeholder="Doplňující informace..."></textarea>
+      <label for="smena-poznamka">Poznámka:</label>
+      <textarea id="smena-poznamka" rows="3" placeholder="Doplňující informace..."></textarea>
     </div>
 
     <button type="submit">Uložit směnu</button>
@@ -432,18 +425,18 @@ document.getElementById("smena-form").addEventListener("submit", async e => {
 
   const data = {
     autor: user.email,
-    datum: document.querySelector('#smena-form input[type="date"]').value,
-    cas: document.querySelector('#smena-form input[placeholder="hh:mm"]').value,
-    rozdeleni: document.querySelectorAll('#smena-form textarea')[0].value,
-    napln: document.querySelectorAll('#smena-form textarea')[1].value,
-    vozidlo: document.querySelector('#smena-form select:nth-of-type(1)').value,
-    duvod: document.querySelector('#smena-form select:nth-of-type(2)').value,
-    palivo: document.querySelector('#smena-form input[type="number"]').value,
-    voda: document.querySelector('#smena-form input[placeholder="Např. 3/5"]').value,
-    svetla: document.querySelector('#smena-form select:nth-of-type(3)').value,
-    ciste: document.querySelector('#smena-form select:nth-of-type(4)').value,
-    technika: document.querySelector('#smena-form select:nth-of-type(5)').value,
-    poznamka: document.querySelectorAll('#smena-form textarea')[2].value
+    datum: document.getElementById("smena-datum").value,
+    cas: document.getElementById("smena-cas").value,
+    rozdeleni: document.getElementById("smena-rozdeleni").value,
+    napln: document.getElementById("smena-napln").value,
+    vozidlo: document.getElementById("smena-vozidlo").value,
+    duvod: document.getElementById("smena-duvod").value,
+    palivo: document.getElementById("smena-palivo").value,
+    voda: document.getElementById("smena-voda").value,
+    svetla: document.getElementById("smena-svetla").value,
+    ciste: document.getElementById("smena-ciste").value,
+    technika: document.getElementById("smena-technika").value,
+    poznamka: document.getElementById("smena-poznamka").value
   };
 
   try {
@@ -457,6 +450,7 @@ document.getElementById("smena-form").addEventListener("submit", async e => {
     alert("Nepodařilo se uložit směnu.");
   }
 });
+
 
 window.zobrazDetail = async function(id) {
   const docRef = doc(db, "vyjezdy", id);
