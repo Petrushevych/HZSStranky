@@ -25,7 +25,104 @@
     </nav>
   </header>
       <section id="vyjezd"></section>
-      <section id="smena" style="display:none;"></section>
+      <section id="smena" style="display:none;">
+  <div class="wrapper">
+    <div class="box">
+      <h3>Zapsání směny</h3>
+      <form id="smena-form">
+        <div class="form-group">
+          <label for="smena-datum">Datum směny:</label>
+          <input type="date" id="smena-datum" />
+        </div>
+
+        <div class="form-group">
+          <label for="smena-cas">Čas směny:</label>
+          <input type="text" id="smena-cas" placeholder="hh:mm" />
+        </div>
+
+        <div class="form-group">
+          <label for="smena-rozdeleni">Rozdělení směny:</label>
+          <textarea id="smena-rozdeleni" rows="3" placeholder="Např. PSA 101 5+1, PSA 103 1+1, KOPIS, VČ..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-napln">Náplň směny:</label>
+          <textarea id="smena-napln" rows="3" placeholder="Např. údržba techniky, výcvik, školení..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-vozidlo">Vozidlo:</label>
+          <select id="smena-vozidlo">
+            <option>PSA 100, KOPIS</option>
+            <option>PSA 101, CAS 20 Scania XT</option>
+            <option>PSA 102, CAS 30 Scania XT</option>
+            <option>PSA 103, AZ-30 Scania XT</option>
+            <option>PSA 105, VEA Ř.D Kodiaq</option>
+            <option>PSA 106, RZA Volkswagen T6</option>
+            <option>PSA 107, CAS 20 Tatra Terra 4x4</option>
+            <option>PSA 108, TA-CH Mercedes Sprinter 4x4</option>
+            <option>PSA 109, TA Ford Ranger</option>
+            <option>PSA 112, CAS 30 Tatra Force</option>
+            <option>PSA 115, VEA Škoda Kodiaq</option>
+            <option>PSA 117, CAS 15 MAN TGM</option>
+            <option>PSA 306, MOS Mercedes Sprinter 4x4</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-duvod">Důvod výjezdu s technikou:</label>
+          <select id="smena-duvod">
+            <option>Kondiční jízda</option>
+            <option>Jízda na místo události</option>
+            <option>Ostatní</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-palivo">Palivo v nádrži (%):</label>
+          <input type="number" id="smena-palivo" min="0" max="100" />
+        </div>
+
+        <div class="form-group">
+          <label for="smena-voda">Voda v nádrži (čárky):</label>
+          <input type="text" id="smena-voda" placeholder="Např. 3/5" />
+        </div>
+
+        <div class="form-group">
+          <label for="smena-svetla">Světla, VRZ, majáky:</label>
+          <select id="smena-svetla">
+            <option>Funkční</option>
+            <option>Nefunkční</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-ciste">Čisté:</label>
+          <select id="smena-ciste">
+            <option>Ano</option>
+            <option>Ne</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-technika">Agregáty, čerpadlo, žebřík, ostatní technika:</label>
+          <select id="smena-technika">
+            <option>Funkční</option>
+            <option>Nefunkční</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="smena-poznamka">Poznámka:</label>
+          <textarea id="smena-poznamka" rows="3" placeholder="Doplňující informace..."></textarea>
+        </div>
+
+        <button type="submit">Uložit směnu</button>
+      </form>
+    </div>
+  </div>
+</section>
+
       <section id="hlaseni" style="display:none;"></section>
       <section id="moje-dokumenty" style="display:none;"></section>
       <section id="statistiky" style="display:none;"></section>
@@ -117,99 +214,6 @@
         <button type="submit">Uložit záznam</button>
       </form>
     </section>
-    <div id="overlay" style="display:none;"></div>
-  <h3>Zapsání směny</h3>
-  <form id="smena-form">
-    <div class="form-group">
-      <label for="smena-datum">Datum směny:</label>
-      <input type="date" id="smena-datum" />
-    </div>
-
-    <div class="form-group">
-      <label for="smena-cas">Čas směny:</label>
-      <input type="text" id="smena-cas" placeholder="hh:mm" />
-    </div>
-
-    <div class="form-group">
-      <label for="smena-rozdeleni">Rozdělení směny:</label>
-      <textarea id="smena-rozdeleni" rows="3" placeholder="Např. PSA 101 5+1, PSA 103 1+1, KOPIS, VČ..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-napln">Náplň směny:</label>
-      <textarea id="smena-napln" rows="3" placeholder="Např. údržba techniky, výcvik, školení..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-vozidlo">Vozidlo:</label>
-      <select id="smena-vozidlo">
-        <option>PSA 100, KOPIS</option>
-        <option>PSA 101, CAS 20 Scania XT</option>
-        <option>PSA 102, CAS 30 Scania XT</option>
-        <option>PSA 103, AZ-30 Scania XT</option>
-        <option>PSA 105, VEA Ř.D Kodiaq</option>
-        <option>PSA 106, RZA Volkswagen T6</option>
-        <option>PSA 107, CAS 20 Tatra Terra 4x4</option>
-        <option>PSA 108, TA-CH Mercedes Sprinter 4x4</option>
-        <option>PSA 109, TA Ford Ranger</option>
-        <option>PSA 112, CAS 30 Tatra Force</option>
-        <option>PSA 115, VEA Škoda Kodiaq</option>
-        <option>PSA 117, CAS 15 MAN TGM</option>
-        <option>PSA 306, MOS Mercedes Sprinter 4x4</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-duvod">Důvod výjezdu s technikou:</label>
-      <select id="smena-duvod">
-        <option>Kondiční jízda</option>
-        <option>Jízda na místo události</option>
-        <option>Ostatní</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-palivo">Palivo v nádrži (%):</label>
-      <input type="number" id="smena-palivo" min="0" max="100" />
-    </div>
-
-    <div class="form-group">
-      <label for="smena-voda">Voda v nádrži (čárky):</label>
-      <input type="text" id="smena-voda" placeholder="Např. 3/5" />
-    </div>
-
-    <div class="form-group">
-      <label for="smena-svetla">Světla, VRZ, majáky:</label>
-      <select id="smena-svetla">
-        <option>Funkční</option>
-        <option>Nefunkční</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-ciste">Čisté:</label>
-      <select id="smena-ciste">
-        <option>Ano</option>
-        <option>Ne</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-technika">Agregáty, čerpadlo, žebřík, ostatní technika:</label>
-      <select id="smena-technika">
-        <option>Funkční</option>
-        <option>Nefunkční</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="smena-poznamka">Poznámka:</label>
-      <textarea id="smena-poznamka" rows="3" placeholder="Doplňující informace..."></textarea>
-    </div>
-
-    <button type="submit">Uložit směnu</button>
-  </form>
-</section>
 
       <section id="hlaseni" style="display:none;"><h3>Hlášení o nehodě</h3><p>Sem přijde formulář pro hlášení o nehodě.</p></section>
       <section id="statistiky" style="display:none;"><h3>Statistiky</h3><p>Sem přijdou velitelské statistiky.</p></section>
@@ -350,7 +354,7 @@ async function loadUserShifts(email) {
       Náplň: ${data.napln}<br/>
       <button>Zobrazit detail</button>
     `;
-    box.querySelector("button").addEventListener("click", () => window.zobrazDetailSmeny(data));
+    box.querySelector("button").addEventListener("click", () => zobrazDetailSmeny(data));
     container.appendChild(box);
   });
 }
@@ -370,7 +374,7 @@ async function loadAllShifts() {
       Náplň: ${data.napln}<br/>
       <button>Zobrazit detail</button>
     `;
-    box.querySelector("button").addEventListener("click", () => window.zobrazDetailSmeny(data));
+    box.querySelector("button").addEventListener("click", () => zobrazDetailSmeny(data));
     container.appendChild(box);
   });
 }
