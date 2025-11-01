@@ -232,6 +232,7 @@
 
       <div id="vsechny-vyjezdy" class="podsekce"></div>
       <div id="vsechny-smeny" class="podsekce" style="display:none;">
+      <div id="overlay" style="display:none;"></div>
         <p>Modul pro směny připravujeme...</p>
       </div>
       <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
@@ -333,7 +334,7 @@ window.zobrazPodsekci = function(typ) {
       });
     }
 
-    async function loadUserShifts(email) {
+async function loadUserShifts(email) {
   const q = query(collection(db, "smeny"), where("autor", "==", email));
   const querySnapshot = await getDocs(q);
   const container = document.getElementById("vsechny-smeny");
@@ -341,12 +342,16 @@ window.zobrazPodsekci = function(typ) {
 
   querySnapshot.forEach(doc => {
     const data = doc.data();
-    container.innerHTML += `<div class="dokument">
+    const box = document.createElement("div");
+    box.className = "dokument";
+    box.innerHTML = `
       <strong>${data.datum} ${data.cas}</strong><br/>
       Vozidlo: ${data.vozidlo} | Důvod: ${data.duvod}<br/>
       Náplň: ${data.napln}<br/>
-      <em>Autor: ${data.autor}</em>
-    </div><hr/>`;
+      <button>Zobrazit detail</button>
+    `;
+    box.querySelector("button").addEventListener("click", () => zobrazDetailSmeny(data));
+    container.appendChild(box);
   });
 }
 
@@ -357,12 +362,16 @@ async function loadAllShifts() {
 
   querySnapshot.forEach(doc => {
     const data = doc.data();
-    container.innerHTML += `<div class="dokument">
+    const box = document.createElement("div");
+    box.className = "dokument";
+    box.innerHTML = `
       <strong>${data.datum} ${data.cas}</strong><br/>
       Vozidlo: ${data.vozidlo} | Důvod: ${data.duvod}<br/>
       Náplň: ${data.napln}<br/>
-      <em>Autor: ${data.autor}</em>
-    </div><hr/>`;
+      <button>Zobrazit detail</button>
+    `;
+    box.querySelector("button").addEventListener("click", () => zobrazDetailSmeny(data));
+    container.appendChild(box);
   });
 }
 
@@ -482,6 +491,30 @@ window.zavritDetail = function() {
   const overlay = document.getElementById("overlay");
   if (overlay) overlay.remove();
 };
+
+function zobrazDetailSmeny(data) {
+  const overlay = document.getElementById("overlay");
+  overlay.innerHTML = `
+    <div class="detail-okno">
+      <h3>Směna – ${data.datum} ${data.cas}</h3>
+      <p><strong>Vozidlo:</strong> ${data.vozidlo}</p>
+      <p><strong>Důvod výjezdu:</strong> ${data.duvod}</p>
+      <p><strong>Rozdělení směny:</strong><br/>${data.rozdeleni}</p>
+      <p><strong>Náplň směny:</strong><br/>${data.napln}</p>
+      <p><strong>Palivo:</strong> ${data.palivo}%</p>
+      <p><strong>Voda:</strong> ${data.voda}</p>
+      <p><strong>Světla, VRZ, majáky:</strong> ${data.svetla}</p>
+      <p><strong>Čisté:</strong> ${data.ciste}</p>
+      <p><strong>Technika:</strong> ${data.technika}</p>
+      <p><strong>Poznámka:</strong><br/>${data.poznamka}</p>
+      <p><em>Autor: ${data.autor}</em></p>
+      <button onclick="document.getElementById('overlay').style.display='none'">Zavřít</button>
+    </div>
+  `;
+  overlay.style.display = "flex";
+}
+
+window.zobrazDetail = zobrazDetailSmeny;
 
 // Přepínání sekcí podle kliknutí
 document.querySelectorAll(".top-panel a").forEach(link => {
