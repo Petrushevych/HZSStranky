@@ -8,7 +8,28 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <section id="profil" style="display:none;">
+  <div class="wrapper">
+    <div class="box">
+      <h3>Uživatelský profil</h3>
+      <p><strong>Jméno:</strong> <span id="profil-jmeno">...</span></p>
+      <p><strong>Příjmení:</strong> <span id="profil-prijmeni">...</span></p>
+      <p><strong>Hodnost:</strong> <span id="profil-hodnost">...</span></p>
+      <p><strong>Složka:</strong> <span id="profil-slozka">...</span></p>
+    </div>
+  </div>
+</section>
   <header class="top-panel">
+    <div class="user-menu">
+  <span id="user-name">...</span>
+  <div class="dropdown-user">
+    <button id="user-toggle">▼</button>
+    <div class="dropdown-content-user">
+      <button id="profil-btn">Profil</button>
+      <button id="logout-btn">Odhlásit se</button>
+    </div>
+  </div>
+</div>
     <nav class="nav-center">
       <ul class="hlavni-menu">
         <li><a href="#vyjezd" class="active">Výjezdový záznam</a></li>
@@ -312,6 +333,34 @@ if (velitele.includes(user.email)) {
   loadAllShifts();
 }
 
+});
+
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+async function nactiProfil() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const docRef = doc(db, "uzivatele", user.email);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    document.getElementById("user-name").textContent = `${data.jmeno} ${data.prijmeni}`;
+    document.getElementById("profil-jmeno").textContent = data.jmeno || "Neuvedeno";
+    document.getElementById("profil-prijmeni").textContent = data.prijmeni || "Neuvedeno";
+    document.getElementById("profil-hodnost").textContent = data.hodnost || "Neuvedeno";
+    document.getElementById("profil-slozka").textContent = Array.isArray(data.slozka) ? data.slozka.join(", ") : data.slozka || "Neuvedeno";
+  }
+}
+
+document.getElementById("profil-btn").addEventListener("click", () => {
+  document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+  document.getElementById("profil").style.display = "block";
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  auth.signOut().then(() => location.reload());
 });
 
 window.zobrazPodsekci = function(typ) {
