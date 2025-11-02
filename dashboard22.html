@@ -265,6 +265,7 @@
       <p><strong>Jméno:</strong> <span id="profil-jmeno">...</span></p>
       <p><strong>Příjmení:</strong> <span id="profil-prijmeni">...</span></p>
       <p><strong>Hodnost:</strong> <span id="profil-hodnost">...</span></p>
+      <p><strong>Role:</strong> <span id="profil-role">...</span></p>
       <p><strong>Složka:</strong> <span id="profil-slozka">...</span></p>
     </div>
   </div>
@@ -363,41 +364,6 @@ const rolePrava = {
   }
 };
 
-function zobrazVyjezdy() {
-  const email = auth.currentUser?.email;
-  if (!email) return;
-
-  loadUserDocuments(email); // už máš definováno
-}
-
-function zobrazSmeny() {
-  const email = auth.currentUser?.email;
-  if (!email) return;
-
-  loadUserShifts(email); // už máš definováno
-}
-
-function zobrazNehody() {
-  const container = document.getElementById("vsechny-hlaseni");
-  if (container) {
-    container.innerHTML = "<p>Modul pro hlášení zatím není aktivní.</p>";
-  }
-}
-
-function zobrazJizdy() {
-  const container = document.getElementById("vsechny-vyjezdy");
-  if (container) {
-    container.innerHTML += "<p>Modul pro jízdy zatím není aktivní.</p>";
-  }
-}
-
-function zobrazZadosti() {
-  const container = document.getElementById("vsechny-vyjezdy");
-  if (container) {
-    container.innerHTML += "<p>Modul pro žádosti zatím není aktivní.</p>";
-  }
-}
-
 function nastavPrava(role) {
   const prava = rolePrava[role];
 
@@ -426,6 +392,39 @@ function nastavPrava(role) {
   if (prava.cteni.includes("zadost")) zobrazŽádosti();
 }
 
+function zobrazVyjezdy() {
+  const email = auth.currentUser?.email;
+  if (!email) return;
+  loadUserDocuments(email);
+}
+
+function zobrazSmeny() {
+  const email = auth.currentUser?.email;
+  if (!email) return;
+  loadUserShifts(email);
+}
+
+function zobrazNehody() {
+  const container = document.getElementById("vsechny-hlaseni");
+  if (container) {
+    container.innerHTML = "<p>Modul pro hlášení zatím není aktivní.</p>";
+  }
+}
+
+function zobrazJizdy() {
+  const container = document.getElementById("vsechny-vyjezdy");
+  if (container) {
+    container.innerHTML += "<p>Modul pro jízdy zatím není aktivní.</p>";
+  }
+}
+
+function zobrazZadosti() {
+  const container = document.getElementById("vsechny-vyjezdy");
+  if (container) {
+    container.innerHTML += "<p>Modul pro žádosti zatím není aktivní.</p>";
+  }
+}
+
 async function nactiProfil() {
   const user = auth.currentUser;
   if (!user) return;
@@ -443,6 +442,7 @@ async function nactiProfil() {
     document.getElementById("profil-jmeno").textContent = data.jmeno || "Neuvedeno";
     document.getElementById("profil-prijmeni").textContent = data.prijmeni || "Neuvedeno";
     document.getElementById("profil-hodnost").textContent = data.hodnost || "Neuvedeno";
+    document.getElementById("profil-role").textContent = data.role || "Neuvedeno";
     document.getElementById("profil-slozka").textContent = Array.isArray(data.slozka) ? data.slozka.join(", ") : data.slozka || "Neuvedeno";
   } else {
     console.warn("Profil nenalezen.");
@@ -569,7 +569,7 @@ const data = {
   jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
 };
 
-const docRef = doc(db, "uzivatele", user.email);
+let docRef = doc(db, "uzivatele", user.email);
 const docSnap = await getDoc(docRef);
 const role = docSnap.exists() ? docSnap.data().role : "hasic";
 const prava = rolePrava[role];
