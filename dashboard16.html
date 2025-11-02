@@ -153,17 +153,17 @@
 
         <div class="form-group">
           <label>Datum výjezdu:</label>
-          <input type="text" placeholder="dd.mm.rrrr" />
+          <input type="text" id="vyjezd-datum" placeholder="dd.mm.rrrr" />
         </div>
 
         <div class="form-group">
           <label>Čas výjezdu:</label>
-          <input type="text" placeholder="hh:mm" />
+          <input type="text" id="vyjezd-cas" placeholder="hh:mm" />
         </div>
 
         <div class="form-group">
           <label>Lokace události:</label>
-          <input type="text" placeholder="Zadej místo" />
+          <input type="text" id="vyjezd-lokalizace" placeholder="Zadej místo" />
         </div>
 
         <div class="form-group">
@@ -188,18 +188,18 @@
 
         <div class="form-group">
           <label>Počet zraněných:</label>
-          <input type="number" min="0" />
+          <input type="number" id="vyjezd-zraneni" min="0" />
         </div>
 
-        <div class="form-group">
-          <label>Vyjetá vozidla:</label>
-          <textarea rows="2" placeholder="Např. Výjezd 1, PSA101"></textarea>
-        </div>
+          <div class="form-group">
+            <label>Vyjetá vozidla:</label>
+            <textarea id="vyjezd-vozidla" rows="2" placeholder="Např. Výjezd 1, PSA101"></textarea>
+          </div>
 
-        <div class="form-group">
-          <label>Použité vybavení:</label>
-          <textarea rows="2" placeholder="Např. hydraulika, dýchací technika"></textarea>
-        </div>
+          <div class="form-group">
+            <label>Použité vybavení:</label>
+            <textarea id="vyjezd-vybaveni" rows="2" placeholder="Např. hydraulika, dýchací technika"></textarea>
+          </div>
 
         <div class="form-group">
           <label>Stupeň požárního poplachu:</label>
@@ -211,10 +211,10 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label>Stručný popis:</label>
-          <textarea rows="4" placeholder="Popiš událost..."></textarea>
-        </div>
+          <div class="form-group">
+            <label>Stručný popis:</label>
+            <textarea id="vyjezd-popis" rows="4" placeholder="Popiš událost..."></textarea>
+          </div>
 
         <button type="submit">Uložit záznam</button>
       </form>
@@ -334,7 +334,7 @@ window.zobrazPodsekci = function(typ) {
         const blok = document.createElement("div");
         blok.className = "dokument";
         blok.innerHTML = `
-          <strong>${data.typ}</strong> – ${data.datum} ${data.cas}<br/>
+          <strong>${data.typ}${data.podtyp ? " – " + data.podtyp : ""}</strong> – ${data.datum} ${data.cas}<br/>
           ${data.lokalizace} | ${data.popis}<br/>
           <button onclick="zobrazDetail('${id}')">Zobrazit detail</button>
         `;
@@ -392,8 +392,8 @@ async function loadAllDocuments() {
     const data = doc.data();
     const id = doc.id;
     container.innerHTML += `<div class="dokument">
-      <strong>${data.typ}</strong> – ${data.datum} ${data.cas}<br/>
-      ${data.lokalizace} | ${data.popis} <br/>
+      <strong>${data.typ}${data.podtyp ? " – " + data.podtyp : ""}</strong> – ${data.datum} ${data.cas}<br/>
+      ${data.lokalizace} | ${data.popis || "Bez popisu"} <br/>
       <em>Autor: ${data.autor}</em><br/>
       <button onclick="zobrazDetail('${id}')">Zobrazit detail</button>
     </div><hr/>`;
@@ -411,16 +411,16 @@ async function loadAllDocuments() {
 
 const data = {
   autor: user.email,
-  datum: document.querySelector('input[placeholder="dd.mm.rrrr"]').value,
-  cas: document.querySelector('input[placeholder="hh:mm"]').value,
-  lokalizace: document.querySelector('input[placeholder="Zadej místo"]').value,
+  datum: document.getElementById("vyjezd-datum").value.trim(),
+  cas: document.getElementById("vyjezd-cas").value.trim(),
+  lokalizace: document.getElementById("vyjezd-lokalizace").value.trim(),
   typ: document.getElementById("typ").value,
   podtyp: document.getElementById("podtyp").value,
-  zraneni: document.querySelector('input[type="number"]').value,
-  vozidla: document.querySelectorAll('textarea')[0].value,
-  vybaveni: document.querySelectorAll('textarea')[1].value,
+  zraneni: parseInt(document.getElementById("vyjezd-zraneni").value.trim()) || 0,
+  vozidla: document.getElementById("vyjezd-vozidla").value.trim(),
+  vybaveni: document.getElementById("vyjezd-vybaveni").value.trim(),
   stupen: document.getElementById("stupen").value,
-  popis: document.querySelectorAll('textarea')[2].value,
+  popis: document.getElementById("vyjezd-popis").value.trim(),
   jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
 };
 
@@ -469,7 +469,6 @@ document.getElementById("smena-form").addEventListener("submit", async e => {
   }
 });
 
-
 window.zobrazDetail = async function(id) {
   const docRef = doc(db, "vyjezdy", id);
   const docSnap = await getDoc(docRef);
@@ -478,15 +477,15 @@ window.zobrazDetail = async function(id) {
     const data = docSnap.data();
     const html = `
       <div class="detail-okno">
-        <h3>${data.typ} – ${data.datum} ${data.cas}</h3>
-        <p><strong>Lokalizace:</strong> ${data.lokalizace}</p>
-        <p><strong>Složky:</strong> ${data.jednotky?.join(", ") || "Neuvedeno"}</p>
-        <p><strong>Vozidla:</strong> ${data.vozidla || "Neuvedeno"}</p>
-        <p><strong>Vybavení:</strong> ${data.vybaveni || "Neuvedeno"}</p>
-        <p><strong>Stupeň poplachu:</strong> ${data.stupen}</p>
-        <p><strong>Zranění:</strong> ${data.zraneni || "Neuvedeno"}</p>
-        <p><strong>Podtyp události:</strong> ${data.podtyp || "Neuvedeno"}</p>
-        <p><strong>Popis:</strong><br/>${data.popis}</p>
+        <h3>${data.typ || "Typ nevyplněn"} – ${data.datum || "Datum nevyplněn"} ${data.cas || ""}</h3>
+        <p><strong>Podtyp události:</strong> ${data.podtyp?.trim() || "Neuvedeno"}</p>
+        <p><strong>Lokalizace:</strong> ${data.lokalizace || "Neuvedeno"}</p>
+        <p><strong>Složky:</strong> ${Array.isArray(data.jednotky) ? data.jednotky.join(", ") : "Neuvedeno"}</p>
+        <p><strong>Vozidla:</strong> ${data.vozidla?.trim() || "Neuvedeno"}</p>
+        <p><strong>Vybavení:</strong> ${data.vybaveni?.trim() || "Neuvedeno"}</p>
+        <p><strong>Stupeň poplachu:</strong> ${data.stupen || "Neuvedeno"}</p>
+        <p><strong>Zranění:</strong> ${data.zraneni?.toString().trim() || "Neuvedeno"}</p>
+        <p><strong>Popis:</strong><br/>${data.popis?.trim() || "Neuvedeno"}</p>
         <button onclick="zavritDetail()">Zavřít</button>
       </div>
     `;
@@ -497,6 +496,8 @@ window.zobrazDetail = async function(id) {
     }
     overlay.innerHTML = html;
     overlay.style.display = "flex";
+  } else {
+    console.warn("Dokument nenalezen.");
   }
 };
 
@@ -571,18 +572,23 @@ window.addEventListener("load", () => {
   });
 });
 
+window.addEventListener("DOMContentLoaded", () => {
+  const vychoziTyp = document.getElementById("typ").value;
+  aktualizujPodtypy(vychoziTyp);
+});
+
 const typSelect = document.getElementById("typ");
 const podtypGroup = document.getElementById("podtyp-group");
 const podtypSelect = document.getElementById("podtyp");
 const vyjezdForm = document.getElementById("vyjezd-form");
 
 const podtypy = {
-  "Požár": ["Nízké budovy", "Výškové budovy"],
-  "Dopravní nehoda": ["Se zraněním"],
-  "Technická pomoc": ["Spolupráce se složkami IZS"],
-  "Únik nebezpečných látek": ["Na pozemní komunikaci"],
-  "Záchrana osob a zvířat": ["Z výšky"],
-  "Ostatní mimořádná událost": ["Radiační nehoda", "Havárie"]
+  "Požár": ["Nízké budovy", "Výškové budovy", "Průmyslové, zemědělské objekty, sklady", "Shromaždiště osob", "Podzemní prostory, tunely", "Lesní porost", "Polní porost, tráva", "Trafostanice, rozvodny", "Dopravní prostředky"],
+  "Dopravní nehoda": ["Vyproštění osob", "Se zraněním", "Uvolnění komunikace, odtažení", "Úklid vozovky", "Železniční", "Letecká"],
+  "Technická pomoc": ["Spolupráce se složkami IZS", "Transport pacienta", "Destrukce objektu", "Náhrada nefunkčního zařízení", "Otevření uzavřených prostor", "Odstranění nebezpečných stavů", "Odstranění stromu", "Likvidace obtížného hmyzu", "Odstraňování překážek", "Čerpání vody", "Měření koncentrací", "Monitoring", "Záloha na PS"],
+  "Únik nebezpečných látek": ["Na pozemní komunikaci", "Do půdy", "Na (do) vodní plochu(y)", "Do ovzduší"],
+  "Záchrana osob a zvířat": ["Z výšky", "Z hloubky", "Z vody", "Uzavřené prostory, výtah", "Zasypané, zavaléne", "AED"],
+  "Ostatní mimořádná událost": ["Radiační nehoda, havárie", "Evakuace a ochrana obyvatel plošná", "Jiné"]
 };
 
 // Zobrazí podtypy podle vybraného typu
