@@ -10,14 +10,16 @@
 <body>
   <header class="top-panel">
 <div class="user-menu">
-  <span id="user-name">...</span>
-  <div class="dropdown-user">
-    <button id="user-toggle">▼</button>
-    <div class="dropdown-content-user">
-      <button id="profil-btn">Profil</button>
-      <button id="logout-btn">Odhlásit se</button>
-    </div>
+  <button id="user-toggle" class="user-button">
+    <span id="user-name">...</span>
+    <i class="arrow-down"></i>
+  </button>
+  <div class="dropdown-user" id="dropdown-user">
+    <button id="profil-btn"><i class="icon-profile"></i> Můj profil</button>
+    <button id="logout-btn"><i class="icon-logout"></i> Odhlásit se</button>
   </div>
+</div>
+
 </div>
     <nav class="nav-center">
       <ul class="hlavni-menu">
@@ -31,7 +33,6 @@
         <li><a href="#sprava">Správa členů</a></li>
         <li><a href="#vsechny-dokumenty">Všechny dokumenty</a></li>
       </ul>
-      <li><button id="logout-btn">Odhlásit se</button></li>
     </nav>
   </header>
       <section id="vyjezd"></section>
@@ -258,7 +259,7 @@
       </div>
       </section>
 
-<section id="profil" style="display:none;">
+<section id="mujprofil" style="display:none;">
   <div class="wrapper">
     <div class="box">
       <h3>Uživatelský profil</h3>
@@ -615,6 +616,13 @@ window.addEventListener("DOMContentLoaded", () => {
   aktualizujPodtypy(vychoziTyp);
 });
 
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.location.hash === "#mujprofil") {
+    document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+    document.getElementById("mujprofil").style.display = "block";
+  }
+});
+
 const typSelect = document.getElementById("typ");
 const podtypGroup = document.getElementById("podtyp-group");
 const podtypSelect = document.getElementById("podtyp");
@@ -666,8 +674,22 @@ document.getElementById("logout-btn").addEventListener("click", () => {
   auth.signOut().then(() => location.reload());
 });
 
+const userToggle = document.getElementById("user-toggle");
+const dropdown = document.getElementById("dropdown-user");
+
+userToggle.addEventListener("click", () => {
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+});
+
+document.addEventListener("click", (e) => {
+  if (!userToggle.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
 </script>
 <!-- Globální overlay pro detaily -->
 <div id="overlay" style="display:none;"></div>
 </body>
 </html>
+    
