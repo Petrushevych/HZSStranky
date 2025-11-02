@@ -35,7 +35,6 @@
       </ul>
     </nav>
   </header>
-      <section id="vyjezd"></section>
       <section id="smena" style="display:none;">
   <div class="wrapper">
     <div class="box">
@@ -319,6 +318,7 @@ onAuthStateChanged(auth, async user => {
     await nactiProfil();
     document.getElementById("user-email").textContent = user.email;
     document.getElementById("logout-btn").style.display = "inline-block";
+
     const docRef = doc(db, "uzivatele", user.email);
     const docSnap = await getDoc(docRef);
 
@@ -328,7 +328,8 @@ onAuthStateChanged(auth, async user => {
 
       nastavPrava(role);
     }
-  }
+
+    // ✅ Tyto části musí být uvnitř if (user)
     if (velitele.includes(user.email)) {
       document.getElementById("velitelske-menu").style.display = "flex";
       loadAllDocuments();
@@ -337,17 +338,72 @@ onAuthStateChanged(auth, async user => {
 
     loadUserDocuments(user.email);
     loadUserShifts(user.email);
+
   } else {
     window.location.href = "prohasice.html";
   }
 });
 
+const rolePrava = {
+  velitel: {
+    zapis: ["vyjezd", "smena", "nehoda"],
+    cteni: ["vyjezd", "smena", "nehoda"]
+  },
+  strojnik: {
+    zapis: ["jizda", "zadost"],
+    cteni: ["jizda", "zadost"]
+  },
+  hasic: {
+    zapis: [],
+    cteni: ["vyjezd", "smena"]
+  },
+  vedeni: {
+    zapis: [],
+    cteni: ["vyjezd", "smena", "nehoda", "jizda", "zadost"]
+  }
+};
+
+function zobrazVyjezdy() {
+  const email = auth.currentUser?.email;
+  if (!email) return;
+
+  loadUserDocuments(email); // už máš definováno
+}
+
+function zobrazSmeny() {
+  const email = auth.currentUser?.email;
+  if (!email) return;
+
+  loadUserShifts(email); // už máš definováno
+}
+
+function zobrazNehody() {
+  const container = document.getElementById("vsechny-hlaseni");
+  if (container) {
+    container.innerHTML = "<p>Modul pro hlášení zatím není aktivní.</p>";
+  }
+}
+
+function zobrazJizdy() {
+  const container = document.getElementById("vsechny-vyjezdy");
+  if (container) {
+    container.innerHTML += "<p>Modul pro jízdy zatím není aktivní.</p>";
+  }
+}
+
+function zobrazZadosti() {
+  const container = document.getElementById("vsechny-vyjezdy");
+  if (container) {
+    container.innerHTML += "<p>Modul pro žádosti zatím není aktivní.</p>";
+  }
+}
+
 function nastavPrava(role) {
   const prava = rolePrava[role];
 
   // Zápisové formuláře
-  if (prava.zapis.includes("zprava")) {
-    document.getElementById("formular-zprava").style.display = "block";
+  if (prava.zapis.includes("vyjezd")) {
+    document.getElementById("vyjezd").style.display = "block";
   }
   if (prava.zapis.includes("smena")) {
     document.getElementById("formular-smena").style.display = "block";
@@ -363,7 +419,7 @@ function nastavPrava(role) {
   }
 
   // Čtení formulářů
-  if (prava.cteni.includes("zprava")) zobrazZpravy();
+  if (prava.cteni.includes("vyjezd")) zobrazVyjezdy();
   if (prava.cteni.includes("smena")) zobrazSměny();
   if (prava.cteni.includes("nehoda")) zobrazNehody();
   if (prava.cteni.includes("jizda")) zobrazJízdy();
@@ -483,10 +539,20 @@ async function loadAllDocuments() {
       signOut(auth).then(() => window.location.href = "prohasice.html");
     });
 
-    document.getElementById("vyjezd-form").addEventListener("submit", async e => {
-      e.preventDefault();
-      const user = auth.currentUser;
-      if (!user) return alert("Nepřihlášený uživatel");
+document.getElementById("vyjezd-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) return alert("Nepřihlášený uživatel");
+
+  const docRef = doc(db, "uzivatele", user.email);
+  const docSnap = await getDoc(docRef);
+  const role = docSnap.exists() ? docSnap.data().role : "hasic";
+  const prava = rolePrava[role];
+
+  if (!prava || !prava.zapis.includes("vyjezd")) {
+    alert("Nemáš oprávnění zapisovat výjezd.");
+    return;
+  }
 
 const data = {
   autor: user.email,
@@ -502,6 +568,16 @@ const data = {
   popis: document.getElementById("vyjezd-popis").value.trim(),
   jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
 };
+
+const docRef = doc(db, "uzivatele", user.email);
+const docSnap = await getDoc(docRef);
+const role = docSnap.exists() ? docSnap.data().role : "hasic";
+const prava = rolePrava[role];
+
+if (!prava.zapis.includes("vyjezd")) {
+  alert("Nemáš oprávnění zapisovat výjezd.");
+  return;
+}
 
   try {
     await addDoc(collection(db, "vyjezdy"), data);
@@ -726,31 +802,18 @@ document.addEventListener("click", (e) => {
   }
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (window.location.hash === "#mujprofil") {
+window.addEventListener("load", () => {
+  const hash = window.location.hash.substring(1);
+  if (hash === "mujprofil") {
     document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
     document.getElementById("mujprofil").style.display = "block";
+
+    // Odznač aktivní tlačítka v horním menu
+    document.querySelectorAll(".hlavni-menu li a, .hlavni-menu li button").forEach(el => {
+      el.classList.remove("active");
+    });
   }
 });
-
-const rolePrava = {
-  velitel: {
-    zapis: ["zprava", "smena", "nehoda"],
-    cteni: ["zprava", "smena", "nehoda"]
-  },
-  strojnik: {
-    zapis: ["jizda", "zadost"],
-    cteni: ["jizda", "zadost"]
-  },
-  hasic: {
-    zapis: [],
-    cteni: ["zprava", "smena"]
-  },
-  vedeni: {
-    zapis: [],
-    cteni: ["zprava", "smena", "nehoda", "jizda", "zadost"]
-  }
-};
 
 </script>
 <!-- Globální overlay pro detaily -->
