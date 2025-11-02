@@ -181,6 +181,11 @@
           </select>
         </div>
 
+        <div class="form-group" id="podtyp-group" style="display:none;">
+          <label for="podtyp">Podtyp události:</label>
+          <select id="podtyp"></select>
+        </div>
+
         <div class="form-group">
           <label>Počet zraněných:</label>
           <input type="number" min="0" />
@@ -236,7 +241,6 @@
 
       <div id="vsechny-vyjezdy" class="podsekce"></div>
       <div id="vsechny-smeny" class="podsekce" style="display:none;">
-      <div id="overlay" style="display:none;"></div>
         <p>Modul pro směny připravujeme...</p>
       </div>
       <div id="vsechny-hlaseni" class="podsekce" style="display:none;">
@@ -379,22 +383,22 @@ async function loadAllShifts() {
   });
 }
 
-      async function loadAllDocuments() {
-        const querySnapshot = await getDocs(collection(db, "vyjezdy"));
-        const container = document.getElementById("vsechny-vyjezdy");
-        container.innerHTML = "";
+async function loadAllDocuments() {
+  const querySnapshot = await getDocs(collection(db, "vyjezdy"));
+  const container = document.getElementById("vsechny-vyjezdy");
+  container.innerHTML = "";
 
-        querySnapshot.forEach(doc => {
-          const data = doc.data();
-          const id = doc.id;
-          container.innerHTML += `<div class="dokument">
-            <strong>${data.typ}</strong> – ${data.datum} ${data.cas}<br/>
-            ${data.lokalizace} | ${data.popis} <br/>
-            <em>Autor: ${data.autor}</em><br/>
-            <button onclick="zobrazDetail('${id}')">Zobrazit detail</button>
-          </div><hr/>`;
-        });
-      }
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    const id = doc.id;
+    container.innerHTML += `<div class="dokument">
+      <strong>${data.typ}</strong> – ${data.datum} ${data.cas}<br/>
+      ${data.lokalizace} | ${data.popis} <br/>
+      <em>Autor: ${data.autor}</em><br/>
+      <button onclick="zobrazDetail('${id}')">Zobrazit detail</button>
+    </div><hr/>`;
+  });
+}
 
     document.getElementById("logout-btn").addEventListener("click", () => {
       signOut(auth).then(() => window.location.href = "prohasice.html");
@@ -405,19 +409,20 @@ async function loadAllShifts() {
       const user = auth.currentUser;
       if (!user) return alert("Nepřihlášený uživatel");
 
-        const data = {
-    autor: user.email,
-    datum: document.querySelector('input[placeholder="dd.mm.rrrr"]').value,
-    cas: document.querySelector('input[placeholder="hh:mm"]').value,
-    lokalizace: document.querySelector('input[placeholder="Zadej místo"]').value,
-    typ: document.getElementById("typ").value,
-    zraneni: parseInt(document.querySelector('input[type="number"]').value),
-    vozidla: document.querySelectorAll('textarea')[0].value,
-    vybaveni: document.querySelectorAll('textarea')[1].value,
-    stupen: document.getElementById("stupen").value,
-    popis: document.querySelectorAll('textarea')[2].value,
-    jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
-  };
+const data = {
+  autor: user.email,
+  datum: document.querySelector('input[placeholder="dd.mm.rrrr"]').value,
+  cas: document.querySelector('input[placeholder="hh:mm"]').value,
+  lokalizace: document.querySelector('input[placeholder="Zadej místo"]').value,
+  typ: document.getElementById("typ").value,
+  podtyp: document.getElementById("podtyp").value,
+  zraneni: document.querySelector('input[type="number"]').value,
+  vozidla: document.querySelectorAll('textarea')[0].value,
+  vybaveni: document.querySelectorAll('textarea')[1].value,
+  stupen: document.getElementById("stupen").value,
+  popis: document.querySelectorAll('textarea')[2].value,
+  jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
+};
 
   try {
     await addDoc(collection(db, "vyjezdy"), data);
@@ -475,26 +480,34 @@ window.zobrazDetail = async function(id) {
       <div class="detail-okno">
         <h3>${data.typ} – ${data.datum} ${data.cas}</h3>
         <p><strong>Lokalizace:</strong> ${data.lokalizace}</p>
-        <p><strong>Složky:</strong> ${data.jednotky.join(", ")}</p>
-        <p><strong>Vozidla:</strong> ${data.vozidla}</p>
-        <p><strong>Vybavení:</strong> ${data.vybaveni}</p>
+        <p><strong>Složky:</strong> ${data.jednotky?.join(", ") || "Neuvedeno"}</p>
+        <p><strong>Vozidla:</strong> ${data.vozidla || "Neuvedeno"}</p>
+        <p><strong>Vybavení:</strong> ${data.vybaveni || "Neuvedeno"}</p>
         <p><strong>Stupeň poplachu:</strong> ${data.stupen}</p>
-        <p><strong>Zranění:</strong> ${data.zraneni}</p>
+        <p><strong>Zranění:</strong> ${data.zraneni || "Neuvedeno"}</p>
+        <p><strong>Podtyp události:</strong> ${data.podtyp || "Neuvedeno"}</p>
         <p><strong>Popis:</strong><br/>${data.popis}</p>
         <button onclick="zavritDetail()">Zavřít</button>
       </div>
     `;
-    const overlay = document.createElement("div");
-    overlay.id = "overlay";
+    const overlay = document.getElementById("overlay");
+    if (!overlay) {
+      console.error("Overlay prvek nebyl nalezen.");
+      return;
+    }
     overlay.innerHTML = html;
-    document.body.appendChild(overlay);
+    overlay.style.display = "flex";
   }
 };
 
 window.zavritDetail = function() {
   const overlay = document.getElementById("overlay");
-  if (overlay) overlay.remove();
+  if (overlay) {
+    overlay.innerHTML = "";
+    overlay.style.display = "none";
+  }
 };
+
 
 function zobrazDetailSmeny(data) {
   const overlay = document.getElementById("overlay");
@@ -558,6 +571,48 @@ window.addEventListener("load", () => {
   });
 });
 
+const typSelect = document.getElementById("typ");
+const podtypGroup = document.getElementById("podtyp-group");
+const podtypSelect = document.getElementById("podtyp");
+const vyjezdForm = document.getElementById("vyjezd-form");
+
+const podtypy = {
+  "Požár": ["Nízké budovy", "Výškové budovy"],
+  "Dopravní nehoda": ["Se zraněním"],
+  "Technická pomoc": ["Spolupráce se složkami IZS"],
+  "Únik nebezpečných látek": ["Na pozemní komunikaci"],
+  "Záchrana osob a zvířat": ["Z výšky"],
+  "Ostatní mimořádná událost": ["Radiační nehoda", "Havárie"]
+};
+
+// Zobrazí podtypy podle vybraného typu
+function aktualizujPodtypy(typ) {
+  const moznosti = podtypy[typ];
+  if (moznosti) {
+    podtypSelect.innerHTML = moznosti.map(p => `<option>${p}</option>`).join("");
+    podtypGroup.style.display = "block";
+  } else {
+    podtypSelect.innerHTML = "";
+    podtypGroup.style.display = "none";
+  }
+}
+
+// Reakce na změnu typu
+typSelect.addEventListener("change", () => {
+  aktualizujPodtypy(typSelect.value);
+});
+
+// Reakce po odeslání formuláře
+vyjezdForm.addEventListener("submit", (e) => {
+  e.preventDefault(); // pokud zpracováváš formulář ručně
+  const vybranyTyp = typSelect.value;
+  aktualizujPodtypy(vybranyTyp);
+
+  // ... zde můžeš pokračovat s ukládáním dat do Firestore nebo jinam
+});
+
 </script>
+<!-- Globální overlay pro detaily -->
+<div id="overlay" style="display:none;"></div>
 </body>
 </html>
