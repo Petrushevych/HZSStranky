@@ -319,7 +319,16 @@ onAuthStateChanged(auth, async user => {
     await nactiProfil();
     document.getElementById("user-email").textContent = user.email;
     document.getElementById("logout-btn").style.display = "inline-block";
+    const docRef = doc(db, "uzivatele", user.email);
+    const docSnap = await getDoc(docRef);
 
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const role = data.role || "hasic"; // výchozí role
+
+      nastavPrava(role);
+    }
+  }
     if (velitele.includes(user.email)) {
       document.getElementById("velitelske-menu").style.display = "flex";
       loadAllDocuments();
@@ -333,6 +342,34 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
+function nastavPrava(role) {
+  const prava = rolePrava[role];
+
+  // Zápisové formuláře
+  if (prava.zapis.includes("zprava")) {
+    document.getElementById("formular-zprava").style.display = "block";
+  }
+  if (prava.zapis.includes("smena")) {
+    document.getElementById("formular-smena").style.display = "block";
+  }
+  if (prava.zapis.includes("nehoda")) {
+    document.getElementById("formular-nehoda").style.display = "block";
+  }
+  if (prava.zapis.includes("jizda")) {
+    document.getElementById("formular-jizda").style.display = "block";
+  }
+  if (prava.zapis.includes("zadost")) {
+    document.getElementById("formular-zadost").style.display = "block";
+  }
+
+  // Čtení formulářů
+  if (prava.cteni.includes("zprava")) zobrazZpravy();
+  if (prava.cteni.includes("smena")) zobrazSměny();
+  if (prava.cteni.includes("nehoda")) zobrazNehody();
+  if (prava.cteni.includes("jizda")) zobrazJízdy();
+  if (prava.cteni.includes("zadost")) zobrazŽádosti();
+}
+
 async function nactiProfil() {
   const user = auth.currentUser;
   if (!user) return;
@@ -342,6 +379,11 @@ async function nactiProfil() {
 
   if (docSnap.exists()) {
     const data = docSnap.data();
+
+    // ✅ Zobrazit jméno v dropdownu
+    document.getElementById("user-name").textContent = `${data.hodnost} ${data.jmeno} ${data.prijmeni}`;
+
+    // ✅ Zobrazit profilové údaje
     document.getElementById("profil-jmeno").textContent = data.jmeno || "Neuvedeno";
     document.getElementById("profil-prijmeni").textContent = data.prijmeni || "Neuvedeno";
     document.getElementById("profil-hodnost").textContent = data.hodnost || "Neuvedeno";
@@ -656,8 +698,14 @@ vyjezdForm.addEventListener("submit", (e) => {
 
 // Zobrazení profilu po kliknutí
 document.getElementById("profil-btn").addEventListener("click", () => {
+  // Skryj všechny sekce
   document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
   document.getElementById("mujprofil").style.display = "block";
+
+  // Odeber .active ze všech tlačítek v horním menu
+  document.querySelectorAll(".hlavni-menu li a, .hlavni-menu li button").forEach(el => {
+    el.classList.remove("active");
+  });
 });
 
 // Odhlášení uživatele
@@ -684,6 +732,25 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("mujprofil").style.display = "block";
   }
 });
+
+const rolePrava = {
+  velitel: {
+    zapis: ["zprava", "smena", "nehoda"],
+    cteni: ["zprava", "smena", "nehoda"]
+  },
+  strojnik: {
+    zapis: ["jizda", "zadost"],
+    cteni: ["jizda", "zadost"]
+  },
+  hasic: {
+    zapis: [],
+    cteni: ["zprava", "smena"]
+  },
+  vedeni: {
+    zapis: [],
+    cteni: ["zprava", "smena", "nehoda", "jizda", "zadost"]
+  }
+};
 
 </script>
 <!-- Globální overlay pro detaily -->
