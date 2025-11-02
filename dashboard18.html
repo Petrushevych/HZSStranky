@@ -8,19 +8,8 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <section id="profil" style="display:none;">
-  <div class="wrapper">
-    <div class="box">
-      <h3>Uživatelský profil</h3>
-      <p><strong>Jméno:</strong> <span id="profil-jmeno">...</span></p>
-      <p><strong>Příjmení:</strong> <span id="profil-prijmeni">...</span></p>
-      <p><strong>Hodnost:</strong> <span id="profil-hodnost">...</span></p>
-      <p><strong>Složka:</strong> <span id="profil-slozka">...</span></p>
-    </div>
-  </div>
-</section>
   <header class="top-panel">
-    <div class="user-menu">
+<div class="user-menu">
   <span id="user-name">...</span>
   <div class="dropdown-user">
     <button id="user-toggle">▼</button>
@@ -269,6 +258,18 @@
       </div>
       </section>
 
+<section id="profil" style="display:none;">
+  <div class="wrapper">
+    <div class="box">
+      <h3>Uživatelský profil</h3>
+      <p><strong>Jméno:</strong> <span id="profil-jmeno">...</span></p>
+      <p><strong>Příjmení:</strong> <span id="profil-prijmeni">...</span></p>
+      <p><strong>Hodnost:</strong> <span id="profil-hodnost">...</span></p>
+      <p><strong>Složka:</strong> <span id="profil-slozka">...</span></p>
+    </div>
+  </div>
+</section>
+
   <footer><p>© 2025 Hasičský záchranný sbor, FivePD Czech Community - Všechna práva vyhrazena</p></footer>
 
   <script type="module">
@@ -314,28 +315,22 @@ jednotkyBox.addEventListener("change", () => {
 
 onAuthStateChanged(auth, async user => {
   if (user) {
+    await nactiProfil();
     document.getElementById("user-email").textContent = user.email;
-    document.getElementById("logout-btn").style.display = "inline-block"; // ✅ zobrazit tlačítko
+    document.getElementById("logout-btn").style.display = "inline-block";
 
     if (velitele.includes(user.email)) {
       document.getElementById("velitelske-menu").style.display = "flex";
       loadAllDocuments();
+      loadAllShifts();
     }
 
     loadUserDocuments(user.email);
+    loadUserShifts(user.email);
   } else {
     window.location.href = "prohasice.html";
   }
-
-  loadUserShifts(user.email);
-if (velitele.includes(user.email)) {
-  document.getElementById("velitelske-menu").style.display = "flex";
-  loadAllShifts();
-}
-
 });
-
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 async function nactiProfil() {
   const user = auth.currentUser;
@@ -351,17 +346,11 @@ async function nactiProfil() {
     document.getElementById("profil-prijmeni").textContent = data.prijmeni || "Neuvedeno";
     document.getElementById("profil-hodnost").textContent = data.hodnost || "Neuvedeno";
     document.getElementById("profil-slozka").textContent = Array.isArray(data.slozka) ? data.slozka.join(", ") : data.slozka || "Neuvedeno";
+  } else {
+    console.warn("Profil nenalezen.");
   }
 }
 
-document.getElementById("profil-btn").addEventListener("click", () => {
-  document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
-  document.getElementById("profil").style.display = "block";
-});
-
-document.getElementById("logout-btn").addEventListener("click", () => {
-  auth.signOut().then(() => location.reload());
-});
 
 window.zobrazPodsekci = function(typ) {
   document.querySelectorAll(".podsekce").forEach(div => {
@@ -664,6 +653,17 @@ vyjezdForm.addEventListener("submit", (e) => {
   aktualizujPodtypy(vybranyTyp);
 
   // ... zde můžeš pokračovat s ukládáním dat do Firestore nebo jinam
+});
+
+// Zobrazení profilu po kliknutí
+document.getElementById("profil-btn").addEventListener("click", () => {
+  document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+  document.getElementById("profil").style.display = "block";
+});
+
+// Odhlášení uživatele
+document.getElementById("logout-btn").addEventListener("click", () => {
+  auth.signOut().then(() => location.reload());
 });
 
 </script>
