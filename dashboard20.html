@@ -342,7 +342,6 @@ async function nactiProfil() {
 
   if (docSnap.exists()) {
     const data = docSnap.data();
-    document.getElementById("user-name").textContent = `${data.jmeno} ${data.prijmeni}`;
     document.getElementById("profil-jmeno").textContent = data.jmeno || "Neuvedeno";
     document.getElementById("profil-prijmeni").textContent = data.prijmeni || "Neuvedeno";
     document.getElementById("profil-hodnost").textContent = data.hodnost || "Neuvedeno";
@@ -351,7 +350,6 @@ async function nactiProfil() {
     console.warn("Profil nenalezen.");
   }
 }
-
 
 window.zobrazPodsekci = function(typ) {
   document.querySelectorAll(".podsekce").forEach(div => {
@@ -616,13 +614,6 @@ window.addEventListener("DOMContentLoaded", () => {
   aktualizujPodtypy(vychoziTyp);
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (window.location.hash === "#mujprofil") {
-    document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
-    document.getElementById("mujprofil").style.display = "block";
-  }
-});
-
 const typSelect = document.getElementById("typ");
 const podtypGroup = document.getElementById("podtyp-group");
 const podtypSelect = document.getElementById("podtyp");
@@ -666,7 +657,7 @@ vyjezdForm.addEventListener("submit", (e) => {
 // Zobrazení profilu po kliknutí
 document.getElementById("profil-btn").addEventListener("click", () => {
   document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
-  document.getElementById("profil").style.display = "block";
+  document.getElementById("mujprofil").style.display = "block";
 });
 
 // Odhlášení uživatele
@@ -687,9 +678,15 @@ document.addEventListener("click", (e) => {
   }
 });
 
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.location.hash === "#mujprofil") {
+    document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+    document.getElementById("mujprofil").style.display = "block";
+  }
+});
+
 </script>
 <!-- Globální overlay pro detaily -->
 <div id="overlay" style="display:none;"></div>
 </body>
 </html>
-    
