@@ -320,17 +320,15 @@ onAuthStateChanged(auth, async user => {
     document.getElementById("user-email").textContent = user.email;
     document.getElementById("logout-btn").style.display = "inline-block";
 
-    const docRef = doc(db, "uzivatele", user.email);
-    const docSnap = await getDoc(docRef);
+    const docRefAuth = doc(db, "uzivatele", user.email);
+    const docSnap = await getDoc(docRefAuth);
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      const role = data.role || "hasic"; // výchozí role
-
+      const role = data.role || "hasic";
       nastavPrava(role);
     }
 
-    // ✅ Tyto části musí být uvnitř if (user)
     if (velitele.includes(user.email)) {
       document.getElementById("velitelske-menu").style.display = "flex";
       loadAllDocuments();
@@ -339,11 +337,11 @@ onAuthStateChanged(auth, async user => {
 
     loadUserDocuments(user.email);
     loadUserShifts(user.email);
-
   } else {
     window.location.href = "prohasice.html";
   }
 });
+
 
 const rolePrava = {
   velitel: {
@@ -429,25 +427,20 @@ async function nactiProfil() {
   const user = auth.currentUser;
   if (!user) return;
 
-  const docRef = doc(db, "uzivatele", user.email);
-  const docSnap = await getDoc(docRef);
+  const docRefProfil = doc(db, "uzivatele", user.email);
+  const docSnap = await getDoc(docRefProfil);
 
   if (docSnap.exists()) {
     const data = docSnap.data();
-
-    // ✅ Zobrazit jméno v dropdownu
     document.getElementById("user-name").textContent = `${data.hodnost} ${data.jmeno} ${data.prijmeni}`;
-
-    // ✅ Zobrazit profilové údaje
     document.getElementById("profil-jmeno").textContent = data.jmeno || "Neuvedeno";
     document.getElementById("profil-prijmeni").textContent = data.prijmeni || "Neuvedeno";
     document.getElementById("profil-hodnost").textContent = data.hodnost || "Neuvedeno";
-    document.getElementById("profil-role").textContent = data.role || "Neuvedeno";
     document.getElementById("profil-slozka").textContent = Array.isArray(data.slozka) ? data.slozka.join(", ") : data.slozka || "Neuvedeno";
-  } else {
-    console.warn("Profil nenalezen.");
+    document.getElementById("profil-role").textContent = data.role || "Neuvedeno";
   }
 }
+
 
 window.zobrazPodsekci = function(typ) {
   document.querySelectorAll(".podsekce").forEach(div => {
@@ -544,8 +537,8 @@ document.getElementById("vyjezd-form").addEventListener("submit", async e => {
   const user = auth.currentUser;
   if (!user) return alert("Nepřihlášený uživatel");
 
-  const docRef = doc(db, "uzivatele", user.email);
-  const docSnap = await getDoc(docRef);
+  const docRefVyjezd = doc(db, "uzivatele", user.email);
+  const docSnap = await getDoc(docRefVyjezd);
   const role = docSnap.exists() ? docSnap.data().role : "hasic";
   const prava = rolePrava[role];
 
@@ -553,7 +546,7 @@ document.getElementById("vyjezd-form").addEventListener("submit", async e => {
     alert("Nemáš oprávnění zapisovat výjezd.");
     return;
   }
-
+  
 const data = {
   autor: user.email,
   datum: document.getElementById("vyjezd-datum").value.trim(),
@@ -569,9 +562,9 @@ const data = {
   jednotky: Array.from(document.querySelectorAll('#jednotky-box input:checked')).map(cb => cb.value)
 };
 
-let docRef = doc(db, "uzivatele", user.email);
-const docSnap = await getDoc(docRef);
-const role = docSnap.exists() ? docSnap.data().role : "hasic";
+let docRefUzivatel = doc(db, "uzivatele", user.email);
+const docSnapUzivatel = await getDoc(docRefUzivatel);
+const role = docSnapUzivatel.exists() ? docSnapUzivatel.data().role : "hasic";
 const prava = rolePrava[role];
 
 if (!prava.zapis.includes("vyjezd")) {
@@ -625,8 +618,8 @@ document.getElementById("smena-form").addEventListener("submit", async e => {
 });
 
 window.zobrazDetail = async function(id) {
-  const docRef = doc(db, "vyjezdy", id);
-  const docSnap = await getDoc(docRef);
+const docRefVyjezdDetail = doc(db, "vyjezdy", id);
+const docSnapVyjezdDetail = await getDoc(docRefVyjezdDetail);
 
   if (docSnap.exists()) {
     const data = docSnap.data();
